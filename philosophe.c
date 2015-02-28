@@ -5,7 +5,7 @@
 ** Login   <chapui_s@epitech.eu>
 **
 ** Started on  Mon Feb 23 23:18:06 2015 chapui_s
-** Last update Tue Feb 24 01:53:54 2015 chapui_s
+** Last update Sat Feb 28 19:55:57 2015 chapui_s
 */
 
 #include <semaphore.h>
@@ -24,9 +24,11 @@ typedef enum	e_state
 sem_t		sticks[7];
 sem_t		stdout_lock;
 pthread_cond_t	conds[7];
+pthread_cond_t	cond_disp;
 t_state		states[7];
 sem_t		access_states;
 sem_t		disp;
+int		run;
 
 void		print_msg(char *fmt, ...)
 {
@@ -39,33 +41,41 @@ void		print_msg(char *fmt, ...)
   va_end(list);
 }
 
-void		disp_philosophes()
+void			disp_philo()
 {
-  t_state	states_tmp[7];
-  int		i;
+  pthread_mutex_t	unused;
+  t_state		states_tmp[7];
+  int			i;
 
-  i = 0;
-  sem_wait(&(access_states));
-  while (i < 7)
+  pthread_mutex_init(&unused, (const pthread_mutexattr_t*)0);
+  pthread_mutex_lock(&unused);
+  while (run)
   {
-    states_tmp[i] = states[i];
-    i += 1;
+    pthread_cond_wait(&(cond_disp), &unused);
+    sem_wait(&(access_states));
+    i = 0;
+    while (i < 7)
+    {
+      states_tmp[i] = states[i];
+      i += 1;
+    }
+    sem_post(&(access_states));
+    sem_wait(&(disp));
+    i = 0;
+    print_msg("%s\n", "--------");
+    while (i < 7)
+    {
+      if (states_tmp[i] == THINKING)
+	print_msg("%d is thinking\n", i);
+      else if (states_tmp[i] == EATING)
+	print_msg("%d is eating\n", i);
+      else
+	print_msg("%d is resting\n", i);
+      i += 1;
+    }
+    sem_post(&(disp));
   }
-  sem_post(&(access_states));
-  sem_wait(&(disp));
-  i = 0;
-  print_msg("%s\n", "--------");
-  while (i < 7)
-  {
-    if (states_tmp[i] == THINKING)
-      print_msg("%d is thinking\n", i);
-    else if (states_tmp[i] == EATING)
-      print_msg("%d is eating\n", i);
-    else
-      print_msg("%d is resting\n", i);
-    i += 1;
-  }
-  sem_post(&(disp));
+  pthread_mutex_destroy(&unused);
 }
 
 t_state		check_status(int n)
@@ -91,9 +101,18 @@ void		mod_status(int n, t_state state)
 #endif /* !DEBUG */
   sem_post(&(access_states));
 #ifndef DEBUG
-  if (!((nb - 1) % 5))
-    disp_philosophes();
+  if (!((nb - 1) % 3))
+    pthread_cond_signal(&cond_disp);
+    /* disp_philosophes(); */
 #endif /* !DEBUG */
+}
+
+void		to_thinking(int n)
+{
+#ifdef DEBUG
+  print_msg("%d is thinking\n", n);
+#endif /* !DEBUG */
+  mod_status(n, THINKING);
 }
 
 void		get_sticks(int n)
@@ -110,16 +129,15 @@ void		get_sticks(int n)
   while (sem_trywait(&(sticks[first])))
     pthread_cond_signal(&(conds[first]));
   while (check_status(second) == THINKING)
+  {
+    if (!one && (one = 1))
+      to_thinking(n);
     usleep(1000);
+  }
   while (sem_trywait(&(sticks[second])))
   {
     if (!one && (one = 1))
-    {
-#ifdef DEBUG
-      print_msg("%d is thinking\n", n);
-#endif /* !DEBUG */
-      mod_status(n, THINKING);
-    }
+      to_thinking(n);
     pthread_cond_signal(&(conds[second]));
   }
 }
@@ -176,6 +194,7 @@ int		main()
   int		i;
   int		current[7];
   pthread_t	threads[7];
+  pthread_t	thread_disp;
 
   i = 0;
   while (i < 7)
@@ -198,6 +217,15 @@ int		main()
       || sem_init(&(disp), 0, 1))
   {
     printf("ERROR: sem_init()\n");
+    return (-1);
+  }
+  run = 1;
+  if (pthread_create(&(thread_disp),
+		     (const pthread_attr_t*)0,
+		     (void *(*)(void*))&disp_philo,
+		     (void*)0))
+  {
+    printf("ERROR: pthread_create()\n");
     return (-1);
   }
   i = 0;
@@ -224,6 +252,7 @@ int		main()
     }
     i += 1;
   }
+  run = 0;
   i = 0;
   while (i < 7)
   {
