@@ -1,0 +1,12 @@
+
+# nombre de riz a bouffer ( >= 1 )
+rices: 10   # valeur par defaut: 10
+
+# nombre de philosophes qui bouffent ( >= 7 )
+philos: 7   # valeur par defaut: 7
+
+# temps d'attente ( >= 1 )
+wait: 3	    # valeur par defaut: 3
+
+# temps d'attente >>maximale<< pour le rafraichissement d'image
+refresh: 3  # valeur par defaut: 3

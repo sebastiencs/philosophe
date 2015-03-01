@@ -5,12 +5,20 @@
 ## Login   <chapui_s@epitech.eu>
 ## 
 ## Started on  Tue Feb 24 01:54:11 2015 chapui_s
-## Last update Tue Feb 24 01:56:38 2015 chapui_s
+## Last update Sun Mar  1 14:44:38 2015 chapui_s
 ##
 
 NAME		= philo
 
-SRC		= philosophe.c
+SRC		= src/philosophe.c		\
+		  src/manage_sdl.c		\
+		  src/manage_config.c		\
+		  src/disp.c			\
+		  src/access_status.c		\
+		  src/run_thread.c		\
+		  src/init.c			\
+		  src/destroy.c			\
+		  src/manage_le_bordel.c
 
 OBJ		= $(SRC:.c=.o)
 
@@ -18,7 +26,7 @@ CC		= gcc
 
 RM		= rm -rf
 
-CFLAGS		+= -lpthread
+override CFLAGS	+= -lpthread -lSDL -Wall -Wextra -ggdb -I ./includes/
 
 $(NAME):	$(OBJ)
 		$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
