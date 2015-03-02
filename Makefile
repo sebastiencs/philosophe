@@ -5,7 +5,7 @@
 ## Login   <chapui_s@epitech.eu>
 ## 
 ## Started on  Tue Feb 24 01:54:11 2015 chapui_s
-## Last update Sun Mar  1 14:44:38 2015 chapui_s
+## Last update Sun Mar  1 15:14:54 2015 chapui_s
 ##
 
 NAME		= philo
@@ -26,7 +26,7 @@ CC		= gcc
 
 RM		= rm -rf
 
-override CFLAGS	+= -lpthread -lSDL -Wall -Wextra -ggdb -I ./includes/
+override CFLAGS	+= -lpthread -lSDL -Wall -Wextra -L ./lib -I ./includes/
 
 $(NAME):	$(OBJ)
 		$(CC) $(CFLAGS) -o $(NAME) $(OBJ)

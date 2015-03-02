@@ -5,7 +5,7 @@
 ** Login   <chapui_s@epitech.eu>
 **
 ** Started on  Sun Mar  1 12:47:38 2015 chapui_s
-** Last update Sun Mar  1 14:39:25 2015 chapui_s
+** Last update Sun Mar  1 15:18:53 2015 chapui_s
 */
 
 #ifndef PHILOSOPHE_H_
@@ -60,6 +60,7 @@ int		time_refresh;
 t_sdl		*init_SDL(void);
 void		update_picture(t_sdl *struct_sdl, t_state *states_tmp, int i);
 # endif /* !DEBUG */
+
 void		print_msg(char *fmt, ...);
 void		update_states(t_state *states_tmp, int i);
 void		get_states(t_state *states_tmp);
